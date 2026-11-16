@@ -23,6 +23,19 @@ apart from the raw-body routes listed below.
   example `ACTIVATION_LIMIT`:
   `{"code":"ACTIVATION_LIMIT","message":"...","details":{"current":1,"max":1}}`.
   Treat it as absent unless a code documents it.
+- When `POST /api/v1/license/activate` returns HTTP `409` with code
+  `ACTIVATION_LIMIT`, stop retrying activation and offer the customer a
+  link to the Keygate customer portal (`/portal`). After signing in,
+  they can inspect the license's devices and remove a lost or unused
+  activation to free a slot, then retry activation on the new device.
+  The owner can remove any device on the license; an accepted seat
+  member can remove only devices activated with their own member key.
+  The portal requires a customer session, so an SDK should open the
+  portal for the customer rather than call its activation-management
+  endpoints with the license key. Do not put the license key in the
+  portal URL or log it. `details.current` and `details.max` can be used
+  to explain that the device limit has been reached, but treat details
+  as optional.
 - `204 No Content` is the only success with no body.
 - An unmatched path or a wrong method answers with the same envelope
   (`404 NOT_FOUND`), so a decoder needs one path, not a second one for
